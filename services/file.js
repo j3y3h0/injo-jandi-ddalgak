@@ -33,10 +33,11 @@ export function saveCodeFilesFromResponse(saveDir, response) {
   const written = [];
   for (const section of sections) {
     const firstLineEnd = section.indexOf("\n");
-    const filePath =
+    let filePath =
       firstLineEnd >= 0
         ? section.slice(0, firstLineEnd).trim()
         : section.trim();
+    filePath = filePath.replace(/^#\s*/, "").trim();
     if (!filePath || filePath.startsWith("`")) continue;
     const codeMatch = section.match(/```\w*\n([\s\S]*?)```/);
     if (!codeMatch) continue;

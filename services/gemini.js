@@ -22,12 +22,16 @@ export function buildCodeDiaryPrompt(newsContent) {
 ${newsContent}
 
 **Your task:**
-1. **Design** a minimal project (2~5 files): e.g. main/entry file, util/helper file, config or test if needed, and **README.md** with Korean explanation.
+1. **Design** a minimal project (2~5 files): e.g. main/entry file, util/helper file, config or test if needed, and **exactly one README.md**.
 2. **Use only this language:** ${randomLang}.
 3. Code must be practical, runnable, and use common libraries or algorithms.
-4. **Output format (strict):** For each file, write exactly two lines then the code block:
-   - Line 1: \`## \` followed by the file path relative to the project (e.g. \`## main.py\`, \`## utils/helper.js\`, \`## README.md\`).
-   - Line 2: \`\`\`lang  (e.g. \`\`\`python or \`\`\`javascript).
+4. **README.md** must be a single .md file containing (in Korean, formal "~이다."):
+   - **코드 구조 설명**: 프로젝트 디렉터리/파일 구성, 각 파일의 역할과 관계를 설명.
+   - **실행 방법**: 실행에 필요한 환경·명령어·순서를 설명.
+   Do NOT output a separate file named "실행 방법" or "4. 실행 방법"; only README.md.
+5. **Output format (strict):** For each file, write exactly two lines then the code block:
+   - Line 1: \`## \` followed by the file path (e.g. \`## main.py\`, \`## utils/helper.js\`, \`## README.md\`).
+   - Line 2: \`\`\`lang (e.g. \`\`\`python or \`\`\`javascript).
    - Next lines: full file content.
    - Then close with \`\`\`.
    Example:
@@ -38,10 +42,14 @@ ${newsContent}
    \`\`\`
    ## README.md
    \`\`\`markdown
-   한글 설명
+   # 프로젝트명
+   ## 코드 구조 설명
+   ...
+   ## 실행 방법
+   ...
    \`\`\`
    \`\`\`
-5. Use formal Korean in README (e.g. "~이다."). Do not wrap the whole output in \`\`\`markdown.
+6. Do not wrap the whole output in \`\`\`markdown.
 
 Design and write the daily code files now.`;
 }

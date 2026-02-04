@@ -1,0 +1,10 @@
+.
+├── src/
+│   └── main/
+│       └── java/
+│           └── com/
+│               └── example/
+│                   └── employment/
+│                       ├── Main.java
+│                       └── EmploymentCalculator.java
+└── README.md
