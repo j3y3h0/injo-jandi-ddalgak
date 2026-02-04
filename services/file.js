@@ -2,6 +2,19 @@ import path from "path";
 import fs from "fs";
 import { getDateParts } from "../utils/date.js";
 
+const DEFAULT_TARGET_PROJECT_DIR = "codes/auto-project";
+
+/** 자동 개선 대상 프로젝트 디렉터리 반환 및 생성. TARGET_PROJECT_DIR 또는 기본값 사용. */
+export function getTargetProjectDir() {
+  const raw =
+    process.env.TARGET_PROJECT_DIR?.trim() || DEFAULT_TARGET_PROJECT_DIR;
+  const resolved = path.isAbsolute(raw) ? raw : path.join(process.cwd(), raw);
+  if (!fs.existsSync(resolved)) {
+    fs.mkdirSync(resolved, { recursive: true });
+  }
+  return resolved;
+}
+
 /** 저장 디렉터리 경로 반환 및 생성. 경로 규칙 변경 시 이 파일만 수정. */
 export function getSaveDir() {
   const { year, month, day } = getDateParts();
