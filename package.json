@@ -7,12 +7,17 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:reset": "prisma migrate reset",
+    "db:studio": "prisma studio"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "fs": "^0.0.1-security",
@@ -21,6 +26,10 @@
     "node-schedule": "^2.1.1",
     "nodemon": "^3.1.7",
     "openai": "^4.73.0",
+    "prisma": "^5.22.0",
     "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@google/gemini-cli": "^0.27.0"
   }
 }

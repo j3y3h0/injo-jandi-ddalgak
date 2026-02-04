@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model NewsMain {
+  newsSe      Int      @id @default(autoincrement()) @map("news_se")
+  titleCt     String   @map("title_ct") @db.VarChar(500)
+  urlLk       String   @unique(length: 255) @map("url_lk") @db.VarChar(1000)
+  imageLk     String?  @map("image_lk") @db.VarChar(1000)
+  summaryCt   String?  @map("summary_ct") @db.Text
+  categoryNm  String?  @map("category_nm") @db.VarChar(100)
+  publishedDt DateTime @map("published_dt")
+  crawledDt   DateTime @default(now()) @map("crawled_dt")
+  updatedDt   DateTime @default(now()) @updatedAt @map("updated_dt")
+
+  @@index([publishedDt])
+  @@index([categoryNm])
+  @@index([crawledDt])
+  @@map("news_main")
+}
+
+model NewsDetail {
+  newsDetailSe Int      @id @default(autoincrement()) @map("news_detail_se")
+  newsSe       Int      @unique @map("news_se")
+  contentCt    String   @map("content_ct") @db.LongText
+  authorNm     String?  @map("author_nm") @db.VarChar(100)
+  sourceNm     String?  @map("source_nm") @db.VarChar(100)
+  tagsCt       String?  @map("tags_ct") @db.Text
+  viewVa       Int?     @default(0) @map("view_va")
+  likeVa       Int?     @default(0) @map("like_va")
+  commentVa    Int?     @default(0) @map("comment_va")
+  regDt        DateTime @default(now()) @map("reg_dt")
+  updatedDt    DateTime @default(now()) @updatedAt @map("updated_dt")
+
+  @@index([authorNm])
+  @@index([sourceNm])
+  @@map("news_detail")
+}
+
+model news_crawl_log {
+  crawl_log_se Int       @id @default(autoincrement())
+  status_cd    String    @db.VarChar(50)
+  message_ct   String?   @db.Text
+  item_va      Int?      @default(0)
+  start_dt     DateTime  @default(now())
+  end_dt       DateTime?
+  duration_va  Int?
+
+  @@index([start_dt], map: "crawl_log_start_dt_idx")
+  @@index([status_cd], map: "crawl_log_status_cd_idx")
+}
