@@ -36,13 +36,16 @@ export async function saveRandomCodeDiary() {
       );
     }
 
-    const isTest = process.env.IS_TEST === "true";
-    if (!isTest) {
-      const batchFilePath = `${process.cwd()}/push.bat`;
-      runBatchScript(batchFilePath);
-    } else {
-      logger.info("IS_TEST=true, git push 생략");
-    }
+    // const isTest = process.env.IS_TEST === "true";
+    // if (!isTest) {
+    //   const batchFilePath = `${process.cwd()}/push.bat`;
+    //   runBatchScript(batchFilePath);
+    // } else {
+    //   logger.info("IS_TEST=true, git push 생략");
+    // }
+
+    const batchFilePath = `${process.cwd()}/push.bat`;
+    runBatchScript(batchFilePath);
   } catch (error) {
     console.log("saveRandomCodeDiary ERROR: ", error);
     logger.error(`saveRandomCodeDiary: ${error}`);
