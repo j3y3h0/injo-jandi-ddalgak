@@ -25,7 +25,7 @@ export async function generateCodeWithGpt(openaiClient, newsContent) {
       temperature: 0.7,
     });
 
-    logger.info(`generateCodeWithGpt: ${JSON.stringify(response, null, 2)}`);
+    logger.info(`GPT 코드 생성 응답: ${JSON.stringify(response, null, 2)}`);
     return response.choices[0].message.content;
   } catch (error) {
     console.error("Error generating code with GPT:", error);
