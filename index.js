@@ -10,10 +10,10 @@ schedule.scheduleJob(
   saveRandomCodeDiary
 );
 
-const isDev = process.env.NODE_ENV === "development";
-if (isDev) {
+const isTest = process.env.IS_TEST === "true";
+if (isTest) {
   saveRandomCodeDiary().then(() => {
-    console.log("saveRandomCodeDiary (dev) 1회 실행 완료");
+    console.log("saveRandomCodeDiary (IS_TEST) 1회 실행 완료");
   });
 }
 

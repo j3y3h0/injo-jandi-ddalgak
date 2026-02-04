@@ -36,8 +36,13 @@ export async function saveRandomCodeDiary() {
       );
     }
 
-    const batchFilePath = `${process.cwd()}/push.bat`;
-    runBatchScript(batchFilePath);
+    const isTest = process.env.IS_TEST === "true";
+    if (!isTest) {
+      const batchFilePath = `${process.cwd()}/push.bat`;
+      runBatchScript(batchFilePath);
+    } else {
+      logger.info("IS_TEST=true, git push 생략");
+    }
   } catch (error) {
     console.log("saveRandomCodeDiary ERROR: ", error);
     logger.error(`saveRandomCodeDiary: ${error}`);
