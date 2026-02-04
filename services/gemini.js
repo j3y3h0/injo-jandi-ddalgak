@@ -42,10 +42,11 @@ export function generateCodeWithGemini(newsContent, saveDir) {
   );
 
   return new Promise((resolve, reject) => {
-    const args = ["--output-format", "json", "--yolo"]; // --yolo: 코드 생성 시 최적화 옵션
+    const args = ["--output-format", "json", "--yolo"];
+    const isWin = process.platform === "win32";
     const child = spawn(geminiBin, args, {
       stdio: ["pipe", "pipe", "pipe"],
-      shell: false,
+      shell: isWin,
       windowsHide: true,
       cwd: saveDirAbsolute,
     });
