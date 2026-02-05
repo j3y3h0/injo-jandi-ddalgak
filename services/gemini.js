@@ -6,8 +6,10 @@ import lodash from "lodash";
 
 const LANGUAGES = ["C#", "Python", "Javascript", "Java"];
 
-/** Gemini CLI 최대 실행 시간(ms). 초과 시 프로세스 종료. 한 번에 한 단계만 하고 끝나게 함. */
+/** Gemini CLI 최대 실행 시간(ms). auto-project용 기본. */
 const DEFAULT_GEMINI_TIMEOUT_MS = 120000;
+/** 코드 다이어리용 기본 타임아웃(ms). 파일 여러 개 생성하므로 더 길게. */
+const DEFAULT_CODE_DIARY_TIMEOUT_MS = 300000;
 
 /** 특정 일자 + 뉴스 기반 코드 다이어리용 프롬프트 생성. 단일 책임: 프롬프트 문구. */
 export function buildCodeDiaryPrompt(newsContent, saveDirAbsolute) {
@@ -46,32 +48,40 @@ export function generateCodeWithGemini(newsContent, saveDir) {
   );
 
   const timeoutMs =
-    Number(process.env.GEMINI_TIMEOUT_MS) || DEFAULT_GEMINI_TIMEOUT_MS;
+    Number(process.env.CODE_DIARY_TIMEOUT_MS) ||
+    Number(process.env.GEMINI_TIMEOUT_MS) ||
+    DEFAULT_CODE_DIARY_TIMEOUT_MS;
 
   return new Promise((resolve, reject) => {
     let settled = false;
-    const finish = (fn) => (...args) => {
-      if (settled) return;
-      settled = true;
-      if (timeoutId) clearTimeout(timeoutId);
-      fn(...args);
-    };
+    const finish =
+      (fn) =>
+      (...args) => {
+        if (settled) return;
+        settled = true;
+        if (timeoutId) clearTimeout(timeoutId);
+        fn(...args);
+      };
 
     const args = ["--output-format", "json", "--yolo"];
     const isWin = process.platform === "win32";
+    const childEnv = { ...process.env, GEMINI_SANDBOX: "false" };
     const child = spawn(geminiBin, args, {
       stdio: ["pipe", "pipe", "pipe"],
       shell: isWin,
       windowsHide: true,
       cwd: saveDirAbsolute,
+      env: childEnv,
     });
-    logger.info("Gemini 프로세스 생성됨");
+    logger.info("Gemini 프로세스 생성됨", { timeoutMs });
 
     const timeoutId = setTimeout(() => {
       if (settled) return;
       settled = true;
       child.kill("SIGTERM");
-      logger.warn(`generateCodeWithGemini: ${timeoutMs}ms 타임아웃, 프로세스 종료`);
+      logger.warn(
+        `generateCodeWithGemini: ${timeoutMs}ms 타임아웃, 프로세스 종료`
+      );
       reject(
         new Error(
           `Gemini CLI timeout (${timeoutMs}ms). 한 번에 한 단계만 수행하도록 GEMINI_TIMEOUT_MS 조정 가능.`
@@ -109,9 +119,7 @@ export function generateCodeWithGemini(newsContent, saveDir) {
         }
         const response = out.response ?? stdout;
         logger.info(`Gemini 응답 성공, 응답 길이=${response?.length ?? 0}`);
-        finish(() =>
-          resolve({ response, saveDir: saveDirAbsolute })
-        )();
+        finish(() => resolve({ response, saveDir: saveDirAbsolute }))();
       } catch (parseErr) {
         if (code !== 0) {
           finish(() => {
@@ -204,20 +212,24 @@ export function runGeminiInDir(targetDir, prompt) {
 
   return new Promise((resolve, reject) => {
     let settled = false;
-    const finish = (fn) => (...args) => {
-      if (settled) return;
-      settled = true;
-      if (timeoutId) clearTimeout(timeoutId);
-      fn(...args);
-    };
+    const finish =
+      (fn) =>
+      (...args) => {
+        if (settled) return;
+        settled = true;
+        if (timeoutId) clearTimeout(timeoutId);
+        fn(...args);
+      };
 
     const args = ["--output-format", "json", "--yolo"];
     const isWin = process.platform === "win32";
+    const childEnv = { ...process.env, GEMINI_SANDBOX: "false" };
     const child = spawn(geminiBin, args, {
       stdio: ["pipe", "pipe", "pipe"],
       shell: isWin,
       windowsHide: true,
       cwd: targetDirAbsolute,
+      env: childEnv,
     });
 
     const timeoutId = setTimeout(() => {
