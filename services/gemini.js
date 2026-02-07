@@ -21,7 +21,7 @@ export function buildCodeDiaryPrompt(newsContent, saveDirAbsolute) {
 아래 뉴스 중 하나를 골라, 해당 주제와 연관된 소규모 실행 가능한 프로젝트를 **현재 작업 디렉터리**에 만들어줘.
 현재 작업 디렉터리 경로: ${saveDirAbsolute}
 
-**중요: 설명만 하지 말고, 반드시 파일 쓰기 툴(write_file 등)을 사용해서 위 경로에 실제 파일을 생성해줘.**
+**중요: 설명만 하지 말고, 반드시 파일 쓰기 툴(write_file 등)을 사용해서 위 경로에 실제 파일을 생성해줘. 생성한 코드를 실행(run)하거나 검사(test/verify)하지 말고, 파일만 생성해줘.**
 
 **할 일:**
 1. 이 디렉터리에 코드 파일들(main, util 등 2~5개)을 툴로 직접 생성해줘. 사용 언어: ${randomLang}만.

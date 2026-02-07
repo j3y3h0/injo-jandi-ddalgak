@@ -9,7 +9,7 @@ import { runBatchScript } from "../services/batch.js";
 
 const NEWS_LIMIT = 9;
 
-/** DB 최신 뉴스 → Gemini CLI 코드 생성(해당 경로에 직접 파일 생성) → 푸시까지의 흐름만 오케스트레이션. */
+/** DB 최신 뉴스 → Gemini CLI 코드 생성(해당 경로에 직접 파일 생성) → 푸시까지 오케스트레이션. */
 export async function saveRandomCodeDiary() {
   try {
     const newsList = await selectNews(NEWS_LIMIT);
