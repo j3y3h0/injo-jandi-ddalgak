@@ -8,8 +8,6 @@ const LANGUAGES = ["C#", "Python", "Javascript", "Java"];
 
 /** Gemini CLI 최대 실행 시간(ms). auto-project용 기본. */
 const DEFAULT_GEMINI_TIMEOUT_MS = 120000;
-/** 코드 다이어리용 기본 타임아웃(ms). 파일 여러 개 생성하므로 더 길게. */
-const DEFAULT_CODE_DIARY_TIMEOUT_MS = 300000;
 
 /** 특정 일자 + 뉴스 기반 코드 다이어리용 프롬프트 생성. 단일 책임: 프롬프트 문구. */
 export function buildCodeDiaryPrompt(newsContent, saveDirAbsolute) {
@@ -47,13 +45,16 @@ export function generateCodeWithGemini(newsContent, saveDir) {
     `Gemini 실행 경로=${geminiBin}, 작업 디렉터리=${saveDirAbsolute}`
   );
 
+  const raw = process.env.CODE_DIARY_TIMEOUT_MS?.trim();
   const timeoutMs =
-    Number(process.env.CODE_DIARY_TIMEOUT_MS) ||
-    Number(process.env.GEMINI_TIMEOUT_MS) ||
-    DEFAULT_CODE_DIARY_TIMEOUT_MS;
+    raw !== undefined && raw !== ""
+      ? Number(raw)
+      : null;
+  const useTimeout = typeof timeoutMs === "number" && timeoutMs > 0;
 
   return new Promise((resolve, reject) => {
     let settled = false;
+    let timeoutId = null;
     const finish =
       (fn) =>
       (...args) => {
@@ -73,21 +74,23 @@ export function generateCodeWithGemini(newsContent, saveDir) {
       cwd: saveDirAbsolute,
       env: childEnv,
     });
-    logger.info("Gemini 프로세스 생성됨", { timeoutMs });
+    logger.info("Gemini 프로세스 생성됨", {
+      codeDiaryTimeout: useTimeout ? timeoutMs : "없음",
+    });
 
-    const timeoutId = setTimeout(() => {
-      if (settled) return;
-      settled = true;
-      child.kill("SIGTERM");
-      logger.warn(
-        `generateCodeWithGemini: ${timeoutMs}ms 타임아웃, 프로세스 종료`
-      );
-      reject(
-        new Error(
-          `Gemini CLI timeout (${timeoutMs}ms). 한 번에 한 단계만 수행하도록 GEMINI_TIMEOUT_MS 조정 가능.`
-        )
-      );
-    }, timeoutMs);
+    if (useTimeout) {
+      timeoutId = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        child.kill("SIGTERM");
+        logger.warn(
+          `generateCodeWithGemini: ${timeoutMs}ms 타임아웃, 프로세스 종료`
+        );
+        reject(
+          new Error(`Gemini CLI timeout (${timeoutMs}ms). CODE_DIARY_TIMEOUT_MS 조정 가능.`)
+        );
+      }, timeoutMs);
+    }
 
     let stdout = "";
     let stderr = "";
