@@ -19,7 +19,7 @@ if (enableCodeDiary) {
   schedule.scheduleJob(
     "saveRandomCodeDiary",
     codeDiaryCron,
-    saveRandomCodeDiary
+    saveRandomCodeDiary,
   );
   console.log("saveRandomCodeDiary started", { cron: codeDiaryCron });
 }
@@ -29,18 +29,23 @@ if (enableAutoProject) {
   schedule.scheduleJob(
     "improveProjectWithGemini",
     cronSchedule,
-    improveProjectWithGemini
+    improveProjectWithGemini,
   );
   console.log("improveProjectWithGemini started", { cronSchedule });
 }
 
 const isTest = process.env.IS_TEST === "true";
+const runCodeDiaryOnceOnStart =
+  enableCodeDiary &&
+  (isTest || isEnabled("CODE_DIARY_RUN_ONCE_ON_START", false));
+
+if (runCodeDiaryOnceOnStart) {
+  saveRandomCodeDiary().then(() => {
+    console.log("saveRandomCodeDiary 시작 시 1회 실행 완료");
+  });
+}
+
 if (isTest) {
-  if (enableCodeDiary) {
-    saveRandomCodeDiary().then(() => {
-      console.log("saveRandomCodeDiary (IS_TEST) 1회 실행 완료");
-    });
-  }
   if (enableAutoProject) {
     const delayMs = Number(process.env.GEMINI_STARTUP_DELAY_MS) || 60000;
     setTimeout(() => {
@@ -53,6 +58,6 @@ if (isTest) {
 
 if (!enableCodeDiary && !enableAutoProject) {
   console.log(
-    "ENABLE_CODE_DIARY, ENABLE_AUTO_PROJECT 둘 다 비활성. 아무 job도 등록되지 않음."
+    "ENABLE_CODE_DIARY, ENABLE_AUTO_PROJECT 둘 다 비활성. 아무 job도 등록되지 않음.",
   );
 }
