@@ -21,9 +21,11 @@ export function buildCodeDiaryPrompt(newsContent, saveDirAbsolute) {
 아래 뉴스 중 하나를 골라, 해당 주제와 연관된 소규모 실행 가능한 프로젝트를 **현재 작업 디렉터리**에 만들어줘.
 현재 작업 디렉터리 경로: ${saveDirAbsolute}
 
+**중요: 설명만 하지 말고, 반드시 파일 쓰기 툴(write_file 등)을 사용해서 위 경로에 실제 파일을 생성해줘.**
+
 **할 일:**
-1. 이 디렉터리에 코드 파일들(main, util 등 2~5개)을 직접 생성해줘. 사용 언어: ${randomLang}만.
-2. 코드 구조 설명과 실행 방법이 담긴 README.md 한 개를 이 디렉터리에 생성해줘. (한글, 문어체 "~이다.")
+1. 이 디렉터리에 코드 파일들(main, util 등 2~5개)을 툴로 직접 생성해줘. 사용 언어: ${randomLang}만.
+2. 코드 구조 설명과 실행 방법이 담긴 README.md 한 개를 이 디렉터리에 툴로 생성해줘. (한글, 문어체 "~이다.")
 3. 실용적이고 실행 가능한 코드로, 산업에서 쓰는 라이브러리·알고리즘을 활용해줘.
 4. 모든 .md 문서와 코드 주석은 한글로 작성해줘.
 
@@ -39,17 +41,14 @@ export function generateCodeWithGemini(newsContent, saveDir) {
     process.cwd(),
     "node_modules",
     ".bin",
-    process.platform === "win32" ? "gemini.cmd" : "gemini"
+    process.platform === "win32" ? "gemini.cmd" : "gemini",
   );
   logger.info(
-    `Gemini 실행 경로=${geminiBin}, 작업 디렉터리=${saveDirAbsolute}`
+    `Gemini 실행 경로=${geminiBin}, 작업 디렉터리=${saveDirAbsolute}`,
   );
 
   const raw = process.env.CODE_DIARY_TIMEOUT_MS?.trim();
-  const timeoutMs =
-    raw !== undefined && raw !== ""
-      ? Number(raw)
-      : null;
+  const timeoutMs = raw !== undefined && raw !== "" ? Number(raw) : null;
   const useTimeout = typeof timeoutMs === "number" && timeoutMs > 0;
 
   return new Promise((resolve, reject) => {
@@ -84,10 +83,12 @@ export function generateCodeWithGemini(newsContent, saveDir) {
         settled = true;
         child.kill("SIGTERM");
         logger.warn(
-          `generateCodeWithGemini: ${timeoutMs}ms 타임아웃, 프로세스 종료`
+          `generateCodeWithGemini: ${timeoutMs}ms 타임아웃, 프로세스 종료`,
         );
         reject(
-          new Error(`Gemini CLI timeout (${timeoutMs}ms). CODE_DIARY_TIMEOUT_MS 조정 가능.`)
+          new Error(
+            `Gemini CLI timeout (${timeoutMs}ms). CODE_DIARY_TIMEOUT_MS 조정 가능.`,
+          ),
         );
       }, timeoutMs);
     }
@@ -107,7 +108,7 @@ export function generateCodeWithGemini(newsContent, saveDir) {
     child.on("close", (code) => {
       if (settled) return;
       logger.info(
-        `Gemini 프로세스 종료: code=${code}, stdout길이=${stdout.length}, stderr길이=${stderr.length}`
+        `Gemini 프로세스 종료: code=${code}, stdout길이=${stdout.length}, stderr길이=${stderr.length}`,
       );
       if (stderr) logger.info(`Gemini CLI stderr: ${stderr}`);
       try {
@@ -122,6 +123,11 @@ export function generateCodeWithGemini(newsContent, saveDir) {
         }
         const response = out.response ?? stdout;
         logger.info(`Gemini 응답 성공, 응답 길이=${response?.length ?? 0}`);
+        if (response && typeof response === "string" && response.length < 500) {
+          logger.info(
+            `Gemini 응답 내용(요약): ${response.slice(0, 300).replace(/\n/g, " ")}`,
+          );
+        }
         finish(() => resolve({ response, saveDir: saveDirAbsolute }))();
       } catch (parseErr) {
         if (code !== 0) {
@@ -134,7 +140,7 @@ export function generateCodeWithGemini(newsContent, saveDir) {
         }
         logger.info("Gemini stdout가 JSON 아님, 원문 stdout 사용");
         finish(() =>
-          resolve({ response: stdout.trim(), saveDir: saveDirAbsolute })
+          resolve({ response: stdout.trim(), saveDir: saveDirAbsolute }),
         )();
       }
     });
@@ -143,7 +149,7 @@ export function generateCodeWithGemini(newsContent, saveDir) {
       if (err) {
         finish(() => {
           logger.error(
-            `generateCodeWithGemini: stdin write error - ${err.message}`
+            `generateCodeWithGemini: stdin write error - ${err.message}`,
           );
           reject(err);
         })();
@@ -171,7 +177,7 @@ export function buildImproveProjectPrompt(
   projectMdContent,
   targetDir,
   optionalFileList = [],
-  optionalNewsContent = ""
+  optionalNewsContent = "",
 ) {
   const fileListText =
     optionalFileList.length > 0
@@ -208,7 +214,7 @@ export function runGeminiInDir(targetDir, prompt) {
     process.cwd(),
     "node_modules",
     ".bin",
-    process.platform === "win32" ? "gemini.cmd" : "gemini"
+    process.platform === "win32" ? "gemini.cmd" : "gemini",
   );
   const timeoutMs =
     Number(process.env.GEMINI_TIMEOUT_MS) || DEFAULT_GEMINI_TIMEOUT_MS;
@@ -242,8 +248,8 @@ export function runGeminiInDir(targetDir, prompt) {
       logger.warn(`runGeminiInDir: ${timeoutMs}ms 타임아웃, 프로세스 종료`);
       reject(
         new Error(
-          `Gemini CLI timeout (${timeoutMs}ms). 한 번에 한 단계만 수행하도록 GEMINI_TIMEOUT_MS 조정 가능.`
-        )
+          `Gemini CLI timeout (${timeoutMs}ms). 한 번에 한 단계만 수행하도록 GEMINI_TIMEOUT_MS 조정 가능.`,
+        ),
       );
     }, timeoutMs);
 
@@ -260,13 +266,13 @@ export function runGeminiInDir(targetDir, prompt) {
     child.on("close", (code) => {
       if (settled) return;
       logger.info(
-        `runGeminiInDir 종료: code=${code}, stdout길이=${stdout.length}`
+        `runGeminiInDir 종료: code=${code}, stdout길이=${stdout.length}`,
       );
       try {
         const out = JSON.parse(stdout);
         if (out.error) {
           finish(() =>
-            reject(new Error(out.error.message || "Gemini CLI error"))
+            reject(new Error(out.error.message || "Gemini CLI error")),
           )();
           return;
         }
@@ -274,17 +280,17 @@ export function runGeminiInDir(targetDir, prompt) {
           resolve({
             response: out.response ?? stdout,
             saveDir: targetDirAbsolute,
-          })
+          }),
         )();
       } catch {
         if (code !== 0) {
           finish(() =>
-            reject(new Error(`Gemini CLI exited ${code}. ${stderr || stdout}`))
+            reject(new Error(`Gemini CLI exited ${code}. ${stderr || stdout}`)),
           )();
           return;
         }
         finish(() =>
-          resolve({ response: stdout.trim(), saveDir: targetDirAbsolute })
+          resolve({ response: stdout.trim(), saveDir: targetDirAbsolute }),
         )();
       }
     });
