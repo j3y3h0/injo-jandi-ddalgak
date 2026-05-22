@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <!-- 로그 파일 이름을 동적으로 설정하기 위한 시스템 프로퍼티 참조 -->
+        <Property name="logFilename">${sys:logFilename:-application.log}</Property>
+    </Properties>
+    <Appenders>
+        <!-- 콘솔로 로그를 출력하는 Appender -->
+        <Console name="ConsoleAppender" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss,SSS}] [%-5p] %c{1.} - %m%n"/>
+        </Console>
+
+        <!-- 파일로 로그를 출력하는 Appender -->
+        <File name="FileAppender" fileName="${logFilename}">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss,SSS}] [%-5p] %c{1.} - %m%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <!-- 루트 로거 설정: 모든 로그 레벨(INFO 이상)을 콘솔과 파일로 출력 -->
+        <Root level="info">
+            <AppenderRef ref="ConsoleAppender"/>
+            <AppenderRef ref="FileAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>
