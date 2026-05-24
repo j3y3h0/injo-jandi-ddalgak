@@ -1,0 +1,15 @@
+{
+  "name": "user-review-sentiment-analyzer",
+  "version": "1.0.0",
+  "description": "사용자 리뷰 감성 분석을 위한 소규모 프로젝트",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "keywords": ["sentiment-analysis", "javascript", "nlp", "korean"],
+  "author": "Gemini CLI",
+  "license": "ISC",
+  "dependencies": {
+    "natural": "^6.10.0"
+  }
+}
