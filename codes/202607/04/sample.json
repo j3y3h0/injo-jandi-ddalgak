@@ -1,0 +1,8 @@
+[
+  { "id": 1, "name": "상품 A", "category": "전자기기", "price": 120000, "stock": 10 },
+  { "id": 2, "name": "상품 B", "category": "의류", "price": 45000, "stock": 25 },
+  { "id": 3, "name": "상품 C", "category": "전자기기", "price": 80000, "stock": 5 },
+  { "id": 4, "name": "상품 D", "category": "식품", "price": 12000, "stock": 50 },
+  { "id": 5, "name": "상품 E", "category": "의류", "price": 60000, "stock": 15 },
+  { "id": 6, "name": "상품 F", "category": "전자기기", "price": 200000, "stock": 3 }
+]
