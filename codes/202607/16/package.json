@@ -1,0 +1,15 @@
+{
+  "name": "data-analysis-project",
+  "version": "1.0.0",
+  "description": "간단한 데이터 분석 및 시각화 프로젝트입니다.",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "papaparse": "^5.4.1"
+  }
+}
